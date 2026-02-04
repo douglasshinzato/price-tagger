@@ -25,6 +25,11 @@ import { LabelQuantityCounter } from "./label-quantity-counter"
 import { labelOrderSchema, type LabelOrderFormValues } from "@/lib/validations/label-order"
 import { createClient } from "@/lib/supabase/client"
 
+// Helper function for pluralization
+const pluralizeEtiqueta = (count: number) => {
+  return `${count} etiqueta${count > 1 ? 's' : ''}`
+}
+
 export function LabelOrderForm() {
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
@@ -112,7 +117,7 @@ export function LabelOrderForm() {
 
       // Success!
       toast.success("Pedido criado com sucesso!", {
-        description: `${values.labelQuantity} etiqueta${values.labelQuantity > 1 ? 's' : ''} de ${values.productName}`,
+        description: pluralizeEtiqueta(values.labelQuantity) + ` de ${values.productName}`,
       })
 
       // Reset form
@@ -297,7 +302,7 @@ export function LabelOrderForm() {
                   </FormControl>
                   <div className="flex justify-center mt-2">
                     <Badge variant="info" className="text-sm">
-                      {field.value} etiqueta{field.value > 1 ? "s" : ""}
+                      {pluralizeEtiqueta(field.value)}
                     </Badge>
                   </div>
                   <FormMessage />
