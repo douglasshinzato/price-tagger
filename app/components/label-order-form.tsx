@@ -51,7 +51,7 @@ export function LabelOrderForm() {
 
   // Calculate price difference percentage
   const priceDifference = 
-    needsPriceUpdate && currentPrice && newPrice
+    needsPriceUpdate && currentPrice > 0 && newPrice
       ? ((newPrice - currentPrice) / currentPrice) * 100
       : 0
 

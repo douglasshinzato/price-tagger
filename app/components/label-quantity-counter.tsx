@@ -29,10 +29,9 @@ export function LabelQuantityCounter({
     const newValue = parseInt(e.target.value, 10)
     if (!isNaN(newValue) && newValue > 0) {
       onChange(newValue)
-    } else if (e.target.value === "") {
-      // Allow empty input temporarily
-      onChange(1)
     }
+    // Allow empty input for user to clear and type new value
+    // Form validation will handle enforcement of minimum value
   }
 
   return (
