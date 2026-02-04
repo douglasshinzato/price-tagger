@@ -5,7 +5,7 @@ export const labelOrderSchema = z
     productName: z.string().min(1, "Nome do produto é obrigatório"),
     currentPrice: z
       .number({ message: "Preço atual deve ser um número" })
-      .positive("Preço deve ser maior que zero"),
+      .positive("Preço atual deve ser maior que zero"),
     needsPriceUpdate: z.boolean(),
     newPrice: z
       .number({ message: "Novo preço deve ser um número" })
