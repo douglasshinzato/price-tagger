@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
@@ -144,186 +145,188 @@ export function LabelOrderForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Product Name */}
-          <FormField
-            control={form.control}
-            name="productName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  Nome do Produto
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ex: Coca-Cola 2L"
-                    disabled={isLoading}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Current Price */}
-          <FormField
-            control={form.control}
-            name="currentPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Preço Atual
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      R$
-                    </span>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Product Name */}
+            <FormField
+              control={form.control}
+              name="productName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Nome do Produto
+                  </FormLabel>
+                  <FormControl>
                     <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
+                      placeholder="Ex: Coca-Cola 2L"
                       disabled={isLoading}
-                      className="pl-10"
                       {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                     />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Needs Price Update Checkbox */}
-          <FormField
-            control={form.control}
-            name="needsPriceUpdate"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    disabled={isLoading}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Precisa atualizar preço?</FormLabel>
-                </div>
-              </FormItem>
-            )}
-          />
-
-          {/* New Price (Conditional) */}
-          {needsPriceUpdate && (
-            <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
-              <FormField
-                control={form.control}
-                name="newPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4" />
-                      Novo Preço
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          R$
-                        </span>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          disabled={isLoading}
-                          className="pl-10"
-                          {...field}
-                          value={field.value || ""}
-                          onChange={(e) =>
-                            field.onChange(parseFloat(e.target.value) || null)
-                          }
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Price Difference Badge */}
-              {priceDifference !== 0 && (
-                <div className="flex justify-center">
-                  <Badge
-                    variant={priceDifference > 0 ? "destructive" : "success"}
-                    className="text-sm py-1.5 px-3"
-                  >
-                    {priceDifference > 0 ? (
-                      <ArrowUp className="h-3 w-3 mr-1" />
-                    ) : (
-                      <ArrowDown className="h-3 w-3 mr-1" />
-                    )}
-                    {priceDifference > 0 ? "+" : ""}
-                    {priceDifference.toFixed(1)}%
-                  </Badge>
-                </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-          )}
+            />
 
-          <Separator />
+            {/* Current Price */}
+            <FormField
+              control={form.control}
+              name="currentPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Preço Atual
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        R$
+                      </span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        disabled={isLoading}
+                        className="pl-10"
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Label Quantity */}
-          <FormField
-            control={form.control}
-            name="labelQuantity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 justify-center text-base">
-                  <Hash className="h-5 w-5" />
-                  Quantidade de Etiquetas
-                </FormLabel>
-                <FormControl>
-                  <LabelQuantityCounter
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled={isLoading}
-                  />
-                </FormControl>
-                <div className="flex justify-center mt-2">
-                  <Badge variant="info" className="text-sm">
-                    {field.value} etiqueta{field.value > 1 ? "s" : ""}
-                  </Badge>
-                </div>
-                <FormMessage />
-              </FormItem>
+            {/* Needs Price Update Checkbox */}
+            <FormField
+              control={form.control}
+              name="needsPriceUpdate"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Precisa atualizar preço?</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {/* New Price (Conditional) */}
+            {needsPriceUpdate && (
+              <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
+                <FormField
+                  control={form.control}
+                  name="newPrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4" />
+                        Novo Preço
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                            R$
+                          </span>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            disabled={isLoading}
+                            className="pl-10"
+                            {...field}
+                            value={field.value || ""}
+                            onChange={(e) =>
+                              field.onChange(parseFloat(e.target.value) || null)
+                            }
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Price Difference Badge */}
+                {priceDifference !== 0 && (
+                  <div className="flex justify-center">
+                    <Badge
+                      variant={priceDifference > 0 ? "destructive" : "success"}
+                      className="text-sm py-1.5 px-3"
+                    >
+                      {priceDifference > 0 ? (
+                        <ArrowUp className="h-3 w-3 mr-1" />
+                      ) : (
+                        <ArrowDown className="h-3 w-3 mr-1" />
+                      )}
+                      {priceDifference > 0 ? "+" : ""}
+                      {priceDifference.toFixed(1)}%
+                    </Badge>
+                  </div>
+                )}
+              </div>
             )}
-          />
 
-          <Separator />
+            <Separator />
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-12 text-base"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Criando pedido...
-              </>
-            ) : (
-              <>
-                Criar Pedido 🚀
-              </>
-            )}
-          </Button>
-        </form>
+            {/* Label Quantity */}
+            <FormField
+              control={form.control}
+              name="labelQuantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2 justify-center text-base">
+                    <Hash className="h-5 w-5" />
+                    Quantidade de Etiquetas
+                  </FormLabel>
+                  <FormControl>
+                    <LabelQuantityCounter
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <div className="flex justify-center mt-2">
+                    <Badge variant="info" className="text-sm">
+                      {field.value} etiqueta{field.value > 1 ? "s" : ""}
+                    </Badge>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-12 text-base"
+              size="lg"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Criando pedido...
+                </>
+              ) : (
+                <>
+                  Criar Pedido 🚀
+                </>
+              )}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   )
