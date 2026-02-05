@@ -4,10 +4,7 @@ import Image from "next/image"
 import { LogoutButton } from "./logout-button"
 import { Separator } from "@/components/ui/separator"
 import { User } from "lucide-react"
-
-interface HeaderProps {
-  userName?: string
-}
+import { HeaderProps } from "@/lib/types"
 
 export function Header({ userName }: HeaderProps) {
   return (
