@@ -27,7 +27,6 @@ export async function completeOrderAction(orderId: string, newPrice: number | nu
   }
 
   // 2. Atualizar o pedido
-  // Nota: Para o horário de MS, o ideal é usar date-fns no servidor ou o timezone do banco
   const { error } = await supabase
     .from('label_orders')
     .update({
@@ -61,14 +60,6 @@ export async function createOrderAction(values: OrderInput) {
     .eq('id', user.id)
     .single()
 
-  // --- Lógica Tradicional para Horário MS ---
-  const now = new Date()
-  // Ajuste manual para UTC-4 (Mato Grosso do Sul) caso o servidor esteja em UTC
-  // Se o servidor já estiver configurado para o fuso local, o ajuste não é necessário
-  const msDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) - (4 * 3600000))
-  const formattedDate = format(msDate, "yyyy-MM-dd HH:mm:ss")
-  // ------------------------------------------
-
   const { error } = await supabase
     .from('label_orders')
     .insert({
@@ -76,7 +67,7 @@ export async function createOrderAction(values: OrderInput) {
       employee_id: user.id,
       employee_name: employee?.name || "Funcionário",
       status: 'pending',
-      created_at: formattedDate
+      created_at: new Date().toISOString()
     })
 
   if (error) return { success: false, error: error.message }
