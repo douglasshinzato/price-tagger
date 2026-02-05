@@ -20,7 +20,6 @@ export default function OrderForm() {
     mode: "onChange",
     defaultValues: {
       product_name: "",
-      current_price: 0,
       needs_price_update: false,
       label_quantity: 1,
     }
@@ -88,7 +87,7 @@ export default function OrderForm() {
             </div>
 
             <div className="space-y-3">
-              <Label>Quantidade de Etiquetas</Label>
+              <Label htmlFor="label_quantity">Quantidade de Etiquetas</Label>
               <div className="flex items-center gap-4">
                 <Button
                   type="button"
@@ -99,9 +98,11 @@ export default function OrderForm() {
                   <Minus className="h-4 w-4" />
                 </Button>
                 <Input
+                  id="label_quantity"
+                  type="number"
+                  min="1"
                   className="text-center font-bold text-lg"
-                  value={quantity}
-                  readOnly
+                  {...form.register("label_quantity", { valueAsNumber: true })}
                 />
                 <Button
                   type="button"
