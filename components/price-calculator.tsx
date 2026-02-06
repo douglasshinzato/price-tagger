@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
-import { X, Calculator, RotateCcw, Copy, Check } from 'lucide-react'
+import { X, RotateCcw, Copy, Check } from 'lucide-react'
 
 interface PriceResult {
   label: string
@@ -13,10 +13,16 @@ interface PriceResult {
   isCopyable: boolean
 }
 
-export function PriceCalculator() {
-  const [productName, setProductName] = useState('')
-  const [basePrice, setBasePrice] = useState('')
-  const [itemsQuantity, setItemsQuantity] = useState('')
+interface PriceCalculatorProps {
+  initialPrice?: number
+  initialQuantity?: number
+  initialProductName?: string
+}
+
+export function PriceCalculator({ initialPrice, initialQuantity, initialProductName }: PriceCalculatorProps) {
+  const [productName, setProductName] = useState(initialProductName || '')
+  const [basePrice, setBasePrice] = useState(initialPrice?.toString() || '')
+  const [itemsQuantity, setItemsQuantity] = useState(initialQuantity?.toString() || '')
   const [results, setResults] = useState<PriceResult[]>([])
   const [showResults, setShowResults] = useState(false)
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
@@ -65,9 +71,9 @@ export function PriceCalculator() {
   }
 
   const handleClear = () => {
-    setProductName('')
-    setBasePrice('')
-    setItemsQuantity('')
+    setProductName(initialProductName || '')
+    setBasePrice(initialPrice?.toString() || '')
+    setItemsQuantity(initialQuantity?.toString() || '')
     setResults([])
     setShowResults(false)
     setCopiedIndex(null)
@@ -129,6 +135,8 @@ export function PriceCalculator() {
               onChange={(e) => setBasePrice(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="0.00"
+              disabled={!!initialPrice}
+              className={initialPrice ? 'bg-muted' : ''}
             />
           </div>
 
@@ -141,6 +149,8 @@ export function PriceCalculator() {
               onChange={(e) => setItemsQuantity(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="0"
+              disabled={!!initialQuantity}
+              className={initialQuantity ? 'bg-muted' : ''}
             />
           </div>
 
@@ -150,7 +160,6 @@ export function PriceCalculator() {
             className="w-full"
             size="lg"
           >
-            <Calculator className="mr-2 h-4 w-4" />
             Calcular
           </Button>
         </div>

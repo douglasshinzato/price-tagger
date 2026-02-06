@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle, Loader2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
+import { PriceCalculator } from "@/components/price-calculator"
+import { Separator } from "@/components/ui/separator"
 
 export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
   const [isPending, startTransition] = useTransition()
@@ -128,6 +130,22 @@ export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
               <h3 className="text-sm font-medium text-muted-foreground">Solicitado por</h3>
               <p className="text-lg font-medium">{order?.employee_name}</p>
             </div>
+
+            <Separator className="my-4" />
+
+            {/* Calculadora de Preços */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Calculadora de Preços
+              </h3>
+              <PriceCalculator
+                initialPrice={order?.current_price}
+                initialQuantity={order?.label_quantity}
+                initialProductName={order?.product_name}
+              />
+            </div>
+
+            <Separator className="my-4" />
 
             {/* Observações */}
             <div className="space-y-2">
