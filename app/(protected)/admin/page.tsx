@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { OrderListItem } from "@/components/order-list-item"
+import { PriceCalculator } from "@/components/price-calculator"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -27,7 +28,7 @@ export default async function AdminDashboard() {
 
         <CardContent>
           <Tabs defaultValue="pendentes" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
               <TabsTrigger value="pendentes" className="relative">
                 Pendentes
                 {pendingOrders.length > 0 && (
@@ -38,6 +39,7 @@ export default async function AdminDashboard() {
               </TabsTrigger>
               <TabsTrigger value="concluidos">Concluídos</TabsTrigger>
               <TabsTrigger value="historico">Histórico</TabsTrigger>
+              <TabsTrigger value="calculadora">Calculadora</TabsTrigger>
             </TabsList>
 
             <ScrollArea className="h-125 pr-4">
@@ -61,6 +63,10 @@ export default async function AdminDashboard() {
                 {orders?.map((order) => (
                   <OrderListItem key={order.id} order={order} />
                 ))}
+              </TabsContent>
+
+              <TabsContent value="calculadora" className="m-0">
+                <PriceCalculator />
               </TabsContent>
             </ScrollArea>
           </Tabs>
