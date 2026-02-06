@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Minus, Plus, Loader2 } from "lucide-react"
 import { useTransition } from "react"
+import { toast } from "sonner"
 
 export default function OrderForm() {
   const [isPending, startTransition] = useTransition()
@@ -32,7 +33,10 @@ export default function OrderForm() {
     startTransition(async () => {
       const res = await createOrderAction(data)
       if (res.success) {
+        toast.success("Pedido realizado com sucesso!")
         form.reset()
+      } else {
+        toast.error("Erro ao criar pedido: " + res.error)
       }
     })
   }

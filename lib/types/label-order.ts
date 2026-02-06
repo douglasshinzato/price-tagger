@@ -7,4 +7,5 @@ export interface LabelOrder {
   current_price: number
   needs_price_update?: boolean
   created_at?: string
+  observations?: string
 }

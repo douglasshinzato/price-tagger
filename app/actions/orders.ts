@@ -4,11 +4,10 @@ import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { orderSchema } from "@/lib/schemas/order"
-import { format } from "date-fns" // date-fns tradicional
 
 type OrderInput = z.infer<typeof orderSchema>
 
-export async function completeOrderAction(orderId: string, newPrice: number | null) {
+export async function completeOrderAction(orderId: string, newPrice: number | null, observations?: string) {
   const supabase = await createClient()
 
   // 1. Verificar se o usuário está logado e se é admin
@@ -27,13 +26,24 @@ export async function completeOrderAction(orderId: string, newPrice: number | nu
   }
 
   // 2. Atualizar o pedido
+  const updateData: {
+    status: string
+    completed_at: string
+    new_price: number | null
+    observations?: string
+  } = {
+    status: 'completed',
+    completed_at: new Date().toISOString(),
+    new_price: newPrice
+  }
+
+  if (observations !== undefined) {
+    updateData.observations = observations
+  }
+
   const { error } = await supabase
     .from('label_orders')
-    .update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      new_price: newPrice
-    })
+    .update(updateData)
     .eq('id', orderId)
 
   if (error) {
