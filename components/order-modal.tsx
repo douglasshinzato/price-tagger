@@ -67,6 +67,9 @@ export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-muted-foreground">Produto</h3>
               <p className="text-lg font-bold">{order?.product_name}</p>
+              {order?.product_details && (
+                <p className="text-sm text-muted-foreground italic">{order.product_details}</p>
+              )}
             </div>
 
             {/* Preço Atual */}
@@ -194,9 +197,9 @@ export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
               className="bg-green-600 hover:bg-green-700"
             >
               {isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <CheckCircle className="mr-2 h-4 w-4" />
+                <CheckCircle className="h-4 w-4" />
               )}
               Confirmar Conclusão
             </Button>

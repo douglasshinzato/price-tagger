@@ -20,6 +20,7 @@ export function OrderForm() {
     mode: "onChange",
     defaultValues: {
       product_name: "",
+      product_details: "",
       needs_price_update: false,
       label_quantity: 1,
     }
@@ -51,6 +52,18 @@ export function OrderForm() {
         />
         {form.formState.errors.product_name && (
           <p className="text-xs text-destructive">{form.formState.errors.product_name.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="product_details">Características do Produto (opcional)</Label>
+        <Input
+          id="product_details"
+          {...form.register("product_details")}
+          placeholder="Ex: 5'8, 6-12lb, Carretilha"
+        />
+        {form.formState.errors.product_details && (
+          <p className="text-xs text-destructive">{form.formState.errors.product_details.message}</p>
         )}
       </div>
 

@@ -1,6 +1,7 @@
 export interface LabelOrder {
   id: string
   product_name: string
+  product_details?: string
   status: 'pending' | 'completed'
   label_quantity: number
   employee_name: string

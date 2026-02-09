@@ -24,6 +24,9 @@ export function OrderListItem({ order }: { order: LabelOrder }) {
               {order.status === 'completed' ? 'Concluído' : 'Pendente'}
             </Badge>
           </div>
+          {order.product_details && (
+            <p className="text-xs text-muted-foreground italic">{order.product_details}</p>
+          )}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{order.label_quantity} un.</span>
             <span>•</span>
