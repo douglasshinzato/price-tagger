@@ -43,11 +43,11 @@ export default async function AdminDashboard() {
               <TabsTrigger value="historico">Histórico</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="novo" className="m-0">
-              <OrderForm />
-            </TabsContent>
-
             <ScrollArea className="h-125 pr-4">
+              <TabsContent value="novo" className="m-0">
+                <OrderForm />
+              </TabsContent>
+
               <TabsContent value="pendentes" className="space-y-4 m-0">
                 {pendingOrders.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">Nenhum pedido pendente.</p>
