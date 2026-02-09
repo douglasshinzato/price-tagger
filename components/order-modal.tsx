@@ -139,7 +139,7 @@ export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
                 Calculadora de Preços
               </h3>
               <PriceCalculator
-                initialPrice={order?.current_price}
+                initialPrice={order?.needs_price_update && calculation ? calculation.finalPrice : order?.current_price}
                 initialQuantity={order?.label_quantity}
                 initialProductName={order?.product_name}
               />

@@ -44,7 +44,7 @@ export function PriceCalculator({ initialPrice, initialQuantity, initialProductN
 
     // Adiciona o nome do produto se existir (em maiúsculo)
     if (productName.trim()) {
-      const upperCaseName = productName.toUpperCase()
+      const upperCaseName = productName.trim().toUpperCase()
       calculatedResults.push({
         label: upperCaseName,
         value: upperCaseName,

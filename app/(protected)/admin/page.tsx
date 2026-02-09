@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { OrderListItem } from "@/components/order-list-item"
+import { OrderForm } from "@/components/order-form"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -15,7 +16,8 @@ export default async function AdminDashboard() {
     .order('created_at', { ascending: true })
 
   const pendingOrders = orders?.filter(o => o.status === 'pending') || []
-  const completedOrders = orders?.filter(o => o.status === 'completed') || []
+  const completedOrders = (orders?.filter(o => o.status === 'completed') || []).reverse()
+  const historyOrders = [...(orders || [])].reverse()
 
   return (
     <div className="flex min-h-svh items-center justify-center p-4 bg-muted/20">
@@ -26,8 +28,9 @@ export default async function AdminDashboard() {
         </CardHeader>
 
         <CardContent>
-          <Tabs defaultValue="pendentes" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+          <Tabs defaultValue="novo" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsTrigger value="novo">Novo Pedido</TabsTrigger>
               <TabsTrigger value="pendentes" className="relative">
                 Pendentes
                 {pendingOrders.length > 0 && (
@@ -39,6 +42,10 @@ export default async function AdminDashboard() {
               <TabsTrigger value="concluidos">Concluídos</TabsTrigger>
               <TabsTrigger value="historico">Histórico</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="novo" className="m-0">
+              <OrderForm />
+            </TabsContent>
 
             <ScrollArea className="h-125 pr-4">
               <TabsContent value="pendentes" className="space-y-4 m-0">
@@ -58,7 +65,7 @@ export default async function AdminDashboard() {
               </TabsContent>
 
               <TabsContent value="historico" className="space-y-4 m-0">
-                {orders?.map((order) => (
+                {historyOrders.map((order) => (
                   <OrderListItem key={order.id} order={order} />
                 ))}
               </TabsContent>
