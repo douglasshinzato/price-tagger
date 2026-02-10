@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { OrderListItem } from "@/components/order-list-item"
 import { OrderForm } from "@/components/order-form"
+import { Clock, CheckCircle, History, CirclePlus } from "lucide-react"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -28,19 +29,29 @@ export default async function AdminDashboard() {
         </CardHeader>
 
         <CardContent>
-          <Tabs defaultValue="novo" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
-              <TabsTrigger value="novo">Novo Pedido</TabsTrigger>
-              <TabsTrigger value="pendentes" className="relative">
-                Pendentes
+          <Tabs defaultValue="pendentes" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-6 h-14">
+              <TabsTrigger value="novo" className="flex items-center gap-2">
+                <CirclePlus className="h-4 w-4" />
+                <span className="hidden md:inline">Novo Pedido</span>
+              </TabsTrigger>
+              <TabsTrigger value="pendentes" className="relative flex items-center justify-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span className="hidden md:inline">Pendentes</span>
                 {pendingOrders.length > 0 && (
-                  <Badge className="ml-2 px-1.5 py-0.5 text-[10px]" variant="default">
+                  <Badge className="md:ml-1 px-1.5 py-0.5 text-[10px] absolute top-1 right-1 md:relative md:top-0 md:right-0" variant="default">
                     {pendingOrders.length}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="concluidos">Concluídos</TabsTrigger>
-              <TabsTrigger value="historico">Histórico</TabsTrigger>
+              <TabsTrigger value="concluidos" className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                <span className="hidden md:inline">Concluídos</span>
+              </TabsTrigger>
+              <TabsTrigger value="historico" className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                <span className="hidden md:inline">Histórico</span>
+              </TabsTrigger>
             </TabsList>
 
             <ScrollArea className="h-125 pr-4">
