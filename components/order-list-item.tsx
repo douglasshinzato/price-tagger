@@ -14,9 +14,9 @@ export function OrderListItem({ order }: { order: LabelOrder }) {
         onClick={() => setIsModalOpen(true)}
         className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer group"
       >
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <p className="font-semibold leading-none">{order.product_name}</p>
+        <div className="space-y-1.5 flex-1 min-w-0 pr-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="font-semibold leading-none wrap-break-word">{order.product_name}</p>
             <Badge
               variant={order.status === 'completed' ? 'secondary' : 'outline'}
               className="text-[10px] h-5"
@@ -34,8 +34,8 @@ export function OrderListItem({ order }: { order: LabelOrder }) {
           </div>
         </div>
 
-        <div className="text-right flex flex-col items-end gap-1.5">
-          <p className="font-bold text-primary">
+        <div className="text-right flex flex-col items-end gap-1.5 shrink-0">
+          <p className="font-bold text-primary whitespace-nowrap">
             R$ {Number(order.current_price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
 
