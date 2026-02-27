@@ -18,10 +18,10 @@ export function OrderListItem({ order }: { order: LabelOrder }) {
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-semibold leading-none wrap-break-word">{order.product_name}</p>
             <Badge
-              variant={order.status === 'completed' ? 'secondary' : 'outline'}
+              variant={order.status === 'completed' ? 'secondary' : order.status === 'cancelled' ? 'destructive' : 'outline'}
               className="text-[10px] h-5"
             >
-              {order.status === 'completed' ? 'Concluído' : 'Pendente'}
+              {order.status === 'completed' ? 'Concluído' : order.status === 'cancelled' ? 'Cancelado' : 'Pendente'}
             </Badge>
           </div>
           {order.product_details && (

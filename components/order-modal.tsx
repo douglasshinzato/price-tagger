@@ -1,7 +1,8 @@
 "use client"
 
 import { useTransition, useState } from "react"
-import { completeOrderAction } from "@/app/actions/orders"
+import { useRouter } from "next/navigation"
+import { completeOrderAction, cancelOrderAction } from "@/app/actions/orders"
 import { OrderModalProps } from "@/lib/types"
 import { toast } from "sonner"
 import {
@@ -13,14 +14,16 @@ import {
   DialogDescription // Adicionado
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, Loader2 } from "lucide-react"
+import { CheckCircle, Loader2, X } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 import { PriceCalculator } from "@/components/price-calculator"
 import { Separator } from "@/components/ui/separator"
 
 export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [isCancelPending, startCancelTransition] = useTransition()
   const [observations, setObservations] = useState(order?.observations || "")
 
   const calculateNewPrice = (price: number) => {
@@ -41,8 +44,22 @@ export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
       if (result.success) {
         toast.success("Pedido concluído com sucesso!")
         onClose()
+        router.refresh()
       } else {
         toast.error("Erro ao concluir pedido: " + result.error)
+      }
+    })
+  }
+
+  function handleCancelOrder() {
+    startCancelTransition(async () => {
+      const result = await cancelOrderAction(order.id)
+      if (result.success) {
+        toast.success("Pedido cancelado com sucesso!")
+        onClose()
+        router.refresh()
+      } else {
+        toast.error("Erro ao cancelar pedido: " + result.error)
       }
     })
   }
@@ -187,22 +204,37 @@ export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
         </ScrollArea>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={onClose} disabled={isPending}>
+          <Button variant="outline" onClick={onClose} disabled={isPending || isCancelPending}>
             Fechar
           </Button>
           {order?.status === 'pending' && (
-            <Button
-              onClick={handleCompleteOrder}
-              disabled={isPending}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <CheckCircle className="h-4 w-4" />
-              )}
-              Confirmar Conclusão
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={handleCancelOrder}
+                disabled={isPending || isCancelPending}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+              >
+                {isCancelPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <X className="h-4 w-4" />
+                )}
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleCompleteOrder}
+                disabled={isPending || isCancelPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="h-4 w-4" />
+                )}
+                Confirmar Conclusão
+              </Button>
+            </>
           )}
         </DialogFooter>
       </DialogContent>

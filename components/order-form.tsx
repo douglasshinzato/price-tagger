@@ -3,26 +3,36 @@
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { orderSchema, OrderFormValues } from "@/lib/schemas/order"
-import { createOrderAction } from "@/app/actions/orders"
+import { createOrderAction, updateOrderAction } from "@/app/actions/orders"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Minus, Plus, Loader2 } from "lucide-react"
 import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { LabelOrder } from "@/lib/types"
 
-export function OrderForm() {
+interface OrderFormProps {
+  order?: LabelOrder
+  onSuccess?: () => void
+}
+
+export function OrderForm({ order, onSuccess }: OrderFormProps = {}) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const isEditing = !!order
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     mode: "onChange",
     defaultValues: {
-      product_name: "",
-      product_details: "",
-      needs_price_update: false,
-      label_quantity: 1,
+      product_name: order?.product_name ?? "",
+      product_details: order?.product_details ?? "",
+      current_price: order?.current_price ?? undefined,
+      needs_price_update: order?.needs_price_update ?? (undefined as unknown as boolean),
+      label_quantity: order?.label_quantity ?? 1,
     }
   })
 
@@ -31,12 +41,25 @@ export function OrderForm() {
 
   function onSubmit(data: OrderFormValues) {
     startTransition(async () => {
-      const res = await createOrderAction(data)
-      if (res.success) {
-        toast.success("Pedido realizado com sucesso!")
-        form.reset()
+      if (isEditing && order) {
+        const res = await updateOrderAction(order.id, data)
+        if (res.success) {
+          toast.success("Pedido atualizado com sucesso!")
+          onSuccess?.()
+          router.refresh()
+        } else {
+          toast.error("Erro ao atualizar pedido: " + res.error)
+        }
       } else {
-        toast.error("Erro ao criar pedido: " + res.error)
+        const res = await createOrderAction(data)
+        if (res.success) {
+          toast.success("Pedido realizado com sucesso!")
+          form.reset()
+          onSuccess?.()
+          router.refresh()
+        } else {
+          toast.error("Erro ao criar pedido: " + res.error)
+        }
       }
     })
   }
@@ -82,15 +105,37 @@ export function OrderForm() {
         )}
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="needs_update"
-          checked={needsUpdate}
-          onCheckedChange={(checked: boolean) => form.setValue("needs_price_update", checked)}
-        />
-        <Label htmlFor="needs_update" className="text-sm font-medium leading-none cursor-pointer">
-          Precisa atualizar preço?
-        </Label>
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Precisa atualizar preço?</Label>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="needs_update_yes"
+              checked={needsUpdate === true}
+              onCheckedChange={(checked) => {
+                if (checked) form.setValue("needs_price_update", true, { shouldValidate: true })
+              }}
+            />
+            <Label htmlFor="needs_update_yes" className="text-sm font-medium leading-none cursor-pointer">
+              Sim
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="needs_update_no"
+              checked={needsUpdate === false}
+              onCheckedChange={(checked) => {
+                if (checked) form.setValue("needs_price_update", false, { shouldValidate: true })
+              }}
+            />
+            <Label htmlFor="needs_update_no" className="text-sm font-medium leading-none cursor-pointer">
+              Não
+            </Label>
+          </div>
+        </div>
+        {form.formState.errors.needs_price_update && (
+          <p className="text-xs text-destructive">{form.formState.errors.needs_price_update.message}</p>
+        )}
       </div>
 
       <div className="space-y-3">
@@ -123,8 +168,23 @@ export function OrderForm() {
       </div>
 
       <Button type="submit" className="w-full h-12 text-lg" disabled={isPending}>
-        {isPending ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : "Enviar Pedido"}
+        {isPending
+          ? <Loader2 className="animate-spin mr-2 h-4 w-4" />
+          : isEditing ? "Salvar Alterações" : "Enviar Pedido"
+        }
       </Button>
+
+      {isEditing && onSuccess && (
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={onSuccess}
+          disabled={isPending}
+        >
+          Cancelar
+        </Button>
+      )}
     </form>
   )
 }

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { OrderHistoryList } from "@/components/order-history-list"
 import { OrderListItem } from "@/components/order-list-item"
 import { OrderForm } from "@/components/order-form"
 import { Clock, CheckCircle, History, CirclePlus } from "lucide-react"
@@ -75,10 +76,12 @@ export default async function AdminDashboard() {
                 ))}
               </TabsContent>
 
-              <TabsContent value="historico" className="space-y-4 m-0">
-                {historyOrders.map((order) => (
-                  <OrderListItem key={order.id} order={order} />
-                ))}
+              <TabsContent value="historico" className="m-0">
+                <OrderHistoryList
+                  orders={historyOrders}
+                  variant="admin"
+                  emptyMessage="Nenhum pedido no histórico."
+                />
               </TabsContent>
             </ScrollArea>
           </Tabs>
