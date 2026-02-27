@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { OrderHistoryList } from "@/components/order-history-list"
 import { OrderListItem } from "@/components/order-list-item"
 import { OrderForm } from "@/components/order-form"
-import { Clock, CheckCircle, History, CirclePlus } from "lucide-react"
+import { Clock, History, CirclePlus } from "lucide-react"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -18,7 +18,6 @@ export default async function AdminDashboard() {
     .order('created_at', { ascending: true })
 
   const pendingOrders = orders?.filter(o => o.status === 'pending') || []
-  const completedOrders = (orders?.filter(o => o.status === 'completed') || []).reverse()
   const historyOrders = [...(orders || [])].reverse()
 
   return (
@@ -31,7 +30,7 @@ export default async function AdminDashboard() {
 
         <CardContent>
           <Tabs defaultValue="pendentes" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 h-14">
+            <TabsList className="grid w-full grid-cols-3 mb-6 h-14">
               <TabsTrigger value="novo" className="flex items-center gap-2">
                 <CirclePlus className="h-4 w-4" />
                 <span className="hidden md:inline">Novo Pedido</span>
@@ -44,10 +43,6 @@ export default async function AdminDashboard() {
                     {pendingOrders.length}
                   </Badge>
                 )}
-              </TabsTrigger>
-              <TabsTrigger value="concluidos" className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4" />
-                <span className="hidden md:inline">Concluídos</span>
               </TabsTrigger>
               <TabsTrigger value="historico" className="flex items-center gap-2">
                 <History className="h-4 w-4" />
@@ -68,12 +63,6 @@ export default async function AdminDashboard() {
                     <OrderListItem key={order.id} order={order} />
                   ))
                 )}
-              </TabsContent>
-
-              <TabsContent value="concluidos" className="space-y-4 m-0">
-                {completedOrders.map((order) => (
-                  <OrderListItem key={order.id} order={order} />
-                ))}
               </TabsContent>
 
               <TabsContent value="historico" className="m-0">
