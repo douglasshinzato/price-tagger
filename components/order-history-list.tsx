@@ -14,6 +14,7 @@ interface OrderHistoryListProps {
   orders: LabelOrder[]
   variant: "admin" | "employee"
   emptyMessage?: string
+  currentUserId?: string
 }
 
 const STATUS_FILTERS: { value: StatusFilter; label: string; icon: React.ReactNode }[] = [
@@ -27,6 +28,7 @@ export function OrderHistoryList({
   orders,
   variant,
   emptyMessage = "Nenhum pedido encontrado.",
+  currentUserId,
 }: OrderHistoryListProps) {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
@@ -76,8 +78,8 @@ export function OrderHistoryList({
               {f.label}
               <span
                 className={`text-[10px] font-semibold px-1 py-0.5 rounded-full ${isActive
-                    ? "bg-primary-foreground/20 text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
                   }`}
               >
                 {count}
@@ -94,7 +96,7 @@ export function OrderHistoryList({
         <div className="space-y-3">
           {filtered.map((order) =>
             variant === "admin" ? (
-              <OrderListItem key={order.id} order={order} />
+              <OrderListItem key={order.id} order={order} currentUserId={currentUserId} />
             ) : (
               <EmployeeOrderItem key={order.id} order={order} />
             )

@@ -11,6 +11,9 @@ import { Clock, History, CirclePlus } from "lucide-react"
 export default async function AdminDashboard() {
   const supabase = await createClient()
 
+  const { data: { user } } = await supabase.auth.getUser()
+  const currentUserId = user?.id
+
   // Busca os pedidos do banco de dados conforme o schema (mais antigo primeiro)
   const { data: orders } = await supabase
     .from('label_orders')
@@ -60,7 +63,7 @@ export default async function AdminDashboard() {
                   <p className="text-center text-muted-foreground py-8">Nenhum pedido pendente.</p>
                 ) : (
                   pendingOrders.map((order) => (
-                    <OrderListItem key={order.id} order={order} />
+                    <OrderListItem key={order.id} order={order} currentUserId={currentUserId} />
                   ))
                 )}
               </TabsContent>
@@ -70,6 +73,7 @@ export default async function AdminDashboard() {
                   orders={historyOrders}
                   variant="admin"
                   emptyMessage="Nenhum pedido no histórico."
+                  currentUserId={currentUserId}
                 />
               </TabsContent>
             </ScrollArea>

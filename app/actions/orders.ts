@@ -55,7 +55,7 @@ export async function completeOrderAction(orderId: string, newPrice: number | nu
   }
 
   // 3. Revalidar a página do dashboard para mostrar os dados atualizados
-  revalidatePath('/admin/dashboard')
+  revalidatePath('/admin')
   return { success: true }
 }
 
@@ -87,7 +87,7 @@ export async function createOrderAction(values: OrderInput) {
   if (error) return { success: false, error: error.message }
 
   revalidatePath('/employee')
-  revalidatePath('/admin/dashboard')
+  revalidatePath('/admin')
   return { success: true }
 }
 
@@ -120,7 +120,7 @@ export async function updateOrderAction(orderId: string, values: OrderInput) {
   if (updateCount === 0) return { success: false, error: "Permissão negada. Verifique as policies RLS do Supabase para UPDATE em label_orders (employee)." }
 
   revalidatePath('/employee')
-  revalidatePath('/admin/dashboard')
+  revalidatePath('/admin')
   return { success: true }
 }
 
@@ -166,6 +166,6 @@ export async function cancelOrderAction(orderId: string) {
   }
 
   revalidatePath('/employee')
-  revalidatePath('/admin/dashboard')
+  revalidatePath('/admin')
   return { success: true }
 }
