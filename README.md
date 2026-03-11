@@ -327,11 +327,3 @@ A maneira mais fácil de fazer deploy é usar a [Vercel Platform](https://vercel
 4. Deploy automático!
 
 Consulte a [documentação de deploy do Next.js](https://nextjs.org/docs/app/building-your-application/deploying) para mais detalhes.
-
-### Variáveis de Ambiente de Produção
-
-Para produção, considere adicionar:
-```env
-NEXT_PUBLIC_SITE_URL=https://seu-dominio.com
-SUPABASE_SERVICE_ROLE_KEY=sua-service-key (apenas server-side)
-```
