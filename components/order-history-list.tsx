@@ -82,28 +82,33 @@ export function OrderHistoryList({
       {/* Search bar */}
       {variant === "admin" ? (
         <form onSubmit={handleSearchSubmit} className="space-y-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Buscar por ID, produto, funcionário ou detalhes…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-10"
-              disabled={isSearching}
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label="Limpar busca"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Pesquisar por produto, etc..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 pr-10"
+                disabled={isSearching}
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label="Limpar busca"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <Button type="submit" size="sm" className="w-full sm:w-auto" disabled={isSearching}>
+              {isSearching ? "Buscando..." : "Buscar"}
+            </Button>
           </div>
           {hasSearchQuery && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground wrap-break-word leading-relaxed">
               {isSearching
                 ? "Buscando..."
                 : searchError

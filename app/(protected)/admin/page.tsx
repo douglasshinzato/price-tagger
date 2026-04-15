@@ -133,12 +133,18 @@ export default async function AdminDashboard({
               </TabsContent>
 
               <TabsContent value="historico" className="m-0 space-y-3">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <p>
+                <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+                  <p className="leading-relaxed sm:pr-2">
                     Pagina {safeHistoryPage} de {totalHistoryPages} - {totalOrders} pedidos
                   </p>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" asChild={hasPreviousHistoryPage} disabled={!hasPreviousHistoryPage}>
+                  <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 sm:flex-none"
+                      asChild={hasPreviousHistoryPage}
+                      disabled={!hasPreviousHistoryPage}
+                    >
                       {hasPreviousHistoryPage ? (
                         <Link href={previousHistoryHref} aria-label="Pagina anterior">
                           <ChevronLeft className="h-4 w-4" />
@@ -151,7 +157,13 @@ export default async function AdminDashboard({
                         </span>
                       )}
                     </Button>
-                    <Button variant="outline" size="sm" asChild={hasNextHistoryPage} disabled={!hasNextHistoryPage}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 sm:flex-none"
+                      asChild={hasNextHistoryPage}
+                      disabled={!hasNextHistoryPage}
+                    >
                       {hasNextHistoryPage ? (
                         <Link href={nextHistoryHref} aria-label="Proxima pagina">
                           Proxima
