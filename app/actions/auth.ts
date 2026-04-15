@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
+import { isAdminRole } from "@/lib/auth-role"
 
 export async function signInAction(formData: FormData) {
   const email = formData.get("email") as string
@@ -19,14 +20,18 @@ export async function signInAction(formData: FormData) {
   }
 
   // 2. Busca a role do usuário na tabela employees
-  const { data: employee } = await supabase
+  const { data: employee, error: employeeError } = await supabase
     .from('employees')
     .select('role')
     .eq('id', data.user.id)
     .single()
 
+  if (employeeError) {
+    console.error("[signInAction] erro ao buscar role em employees:", employeeError)
+  }
+
   // 3. Redirecionamento baseado na role
-  if (employee?.role === 'admin') {
+  if (isAdminRole(employee?.role)) {
     redirect('/admin')
   } else {
     redirect('/employee')

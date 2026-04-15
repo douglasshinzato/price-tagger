@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -6,22 +7,82 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { OrderHistoryList } from "@/components/order-history-list"
 import { OrderListItem } from "@/components/order-list-item"
 import { OrderForm } from "@/components/order-form"
-import { Clock, History, CirclePlus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Clock, History, CirclePlus, ChevronLeft, ChevronRight } from "lucide-react"
 
-export default async function AdminDashboard() {
+type AdminDashboardSearchParams = Promise<{
+  historyPage?: string
+  tab?: string
+}>
+
+const HISTORY_PAGE_SIZE = 100
+
+export default async function AdminDashboard({
+  searchParams,
+}: {
+  searchParams: AdminDashboardSearchParams
+}) {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   const currentUserId = user?.id
 
-  // Busca os pedidos do banco de dados conforme o schema (mais antigo primeiro)
-  const { data: orders } = await supabase
-    .from('label_orders')
-    .select('*')
-    .order('created_at', { ascending: true })
+  const params = await searchParams
+  const rawPage = Number(params.historyPage ?? "1")
+  const historyPage = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
+  const tabParam = params.tab
+  const initialTab =
+    tabParam === "novo" || tabParam === "historico" || tabParam === "pendentes"
+      ? tabParam
+      : historyPage > 1
+        ? "historico"
+        : "pendentes"
 
-  const pendingOrders = orders?.filter(o => o.status === 'pending') || []
-  const historyOrders = [...(orders || [])].reverse()
+  // Busca apenas pendentes (mais recente primeiro)
+  const { data: pendingOrders, error: pendingOrdersError } = await supabase
+    .from("label_orders")
+    .select("*")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+
+  // Conta total para paginação do histórico
+  const { count: totalHistoryOrders, error: historyCountError } = await supabase
+    .from("label_orders")
+    .select("*", { count: "exact", head: true })
+
+  const totalOrders = totalHistoryOrders ?? 0
+  const totalHistoryPages = Math.max(1, Math.ceil(totalOrders / HISTORY_PAGE_SIZE))
+  const safeHistoryPage = Math.min(historyPage, totalHistoryPages)
+  const historyFrom = (safeHistoryPage - 1) * HISTORY_PAGE_SIZE
+  const historyTo = historyFrom + HISTORY_PAGE_SIZE - 1
+
+  const { data: historyOrders, error: historyOrdersError } = await supabase
+    .from("label_orders")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .range(historyFrom, historyTo)
+
+  if (pendingOrdersError) {
+    console.error("[AdminDashboard] erro ao buscar pedidos pendentes:", pendingOrdersError)
+  }
+
+  if (historyCountError) {
+    console.error("[AdminDashboard] erro ao contar pedidos do histórico:", historyCountError)
+  }
+
+  if (historyOrdersError) {
+    console.error("[AdminDashboard] erro ao buscar página do histórico:", historyOrdersError)
+  }
+
+  const pending = pendingOrders || []
+  const paginatedHistoryOrders = historyOrders || []
+  const hasPreviousHistoryPage = safeHistoryPage > 1
+  const hasNextHistoryPage = safeHistoryPage < totalHistoryPages
+
+  const previousHistoryHref = `?tab=historico&historyPage=${safeHistoryPage - 1}`
+  const nextHistoryHref = `?tab=historico&historyPage=${safeHistoryPage + 1}`
 
   return (
     <div className="flex min-h-svh items-center justify-center p-4 bg-muted/20">
@@ -32,8 +93,8 @@ export default async function AdminDashboard() {
         </CardHeader>
 
         <CardContent>
-          <Tabs defaultValue="pendentes" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6 h-14">
+          <Tabs defaultValue={initialTab} className="w-full">
+            <TabsList className="mb-6 grid h-14 w-full grid-cols-3">
               <TabsTrigger value="novo" className="flex items-center gap-2">
                 <CirclePlus className="h-4 w-4" />
                 <span className="hidden md:inline">Novo Pedido</span>
@@ -41,9 +102,12 @@ export default async function AdminDashboard() {
               <TabsTrigger value="pendentes" className="relative flex items-center justify-center gap-2">
                 <Clock className="h-4 w-4" />
                 <span className="hidden md:inline">Pendentes</span>
-                {pendingOrders.length > 0 && (
-                  <Badge className="md:ml-1 px-1.5 py-0.5 text-[10px] absolute top-1 right-1 md:relative md:top-0 md:right-0" variant="default">
-                    {pendingOrders.length}
+                {pending.length > 0 && (
+                  <Badge
+                    className="absolute top-1 right-1 px-1.5 py-0.5 text-[10px] md:relative md:top-0 md:right-0 md:ml-1"
+                    variant="default"
+                  >
+                    {pending.length}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -58,21 +122,55 @@ export default async function AdminDashboard() {
                 <OrderForm />
               </TabsContent>
 
-              <TabsContent value="pendentes" className="space-y-4 m-0">
-                {pendingOrders.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">Nenhum pedido pendente.</p>
+              <TabsContent value="pendentes" className="m-0 space-y-4">
+                {pending.length === 0 ? (
+                  <p className="py-8 text-center text-muted-foreground">Nenhum pedido pendente.</p>
                 ) : (
-                  pendingOrders.map((order) => (
+                  pending.map((order) => (
                     <OrderListItem key={order.id} order={order} currentUserId={currentUserId} />
                   ))
                 )}
               </TabsContent>
 
-              <TabsContent value="historico" className="m-0">
+              <TabsContent value="historico" className="m-0 space-y-3">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <p>
+                    Pagina {safeHistoryPage} de {totalHistoryPages} - {totalOrders} pedidos
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" asChild={hasPreviousHistoryPage} disabled={!hasPreviousHistoryPage}>
+                      {hasPreviousHistoryPage ? (
+                        <Link href={previousHistoryHref} aria-label="Pagina anterior">
+                          <ChevronLeft className="h-4 w-4" />
+                          Anterior
+                        </Link>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5">
+                          <ChevronLeft className="h-4 w-4" />
+                          Anterior
+                        </span>
+                      )}
+                    </Button>
+                    <Button variant="outline" size="sm" asChild={hasNextHistoryPage} disabled={!hasNextHistoryPage}>
+                      {hasNextHistoryPage ? (
+                        <Link href={nextHistoryHref} aria-label="Proxima pagina">
+                          Proxima
+                          <ChevronRight className="h-4 w-4" />
+                        </Link>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5">
+                          Proxima
+                          <ChevronRight className="h-4 w-4" />
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
                 <OrderHistoryList
-                  orders={historyOrders}
+                  orders={paginatedHistoryOrders}
                   variant="admin"
-                  emptyMessage="Nenhum pedido no histórico."
+                  emptyMessage="Nenhum pedido no historico."
                   currentUserId={currentUserId}
                 />
               </TabsContent>

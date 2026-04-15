@@ -4,6 +4,7 @@ import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { orderSchema } from "@/lib/schemas/order"
+import { isAdminRole } from "@/lib/auth-role"
 
 type OrderInput = z.infer<typeof orderSchema>
 
@@ -15,13 +16,17 @@ export async function completeOrderAction(orderId: string, newPrice: number | nu
 
   if (!user) throw new Error("Não autorizado")
 
-  const { data: employee } = await supabase
+  const { data: employee, error: employeeError } = await supabase
     .from('employees')
     .select('role')
     .eq('id', user.id)
     .single()
 
-  if (employee?.role !== 'admin') {
+  if (employeeError) {
+    console.error("[completeOrderAction] erro ao buscar role em employees:", employeeError)
+  }
+
+  if (!isAdminRole(employee?.role)) {
     throw new Error("Apenas administradores podem concluir pedidos")
   }
 
@@ -131,13 +136,17 @@ export async function cancelOrderAction(orderId: string) {
   if (!user) return { success: false, error: "Não autorizado" }
 
   // Verificar role do usuário
-  const { data: employee } = await supabase
+  const { data: employee, error: employeeError } = await supabase
     .from('employees')
     .select('role')
     .eq('id', user.id)
     .single()
 
-  const isAdmin = employee?.role === 'admin'
+  if (employeeError) {
+    console.error("[cancelOrderAction] erro ao buscar role em employees:", employeeError)
+  }
+
+  const isAdmin = isAdminRole(employee?.role)
 
   // Buscar o pedido
   const { data: existing } = await supabase
@@ -168,4 +177,50 @@ export async function cancelOrderAction(orderId: string) {
   revalidatePath('/employee')
   revalidatePath('/admin')
   return { success: true }
+}
+
+export async function searchOrdersAction(query: string) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "Não autorizado", results: [] }
+
+  const { data: employee } = await supabase
+    .from('employees')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = isAdminRole(employee?.role)
+
+  if (!isAdmin) {
+    return { success: false, error: "Apenas admins podem buscar", results: [] }
+  }
+
+  const searchTerm = query.trim().toLowerCase()
+  if (!searchTerm || searchTerm.length < 2) {
+    return { success: true, error: null, results: [] }
+  }
+
+  // Buscar todos os pedidos e filtrar em memória (para não depender de página)
+  const { data: results, error } = await supabase
+    .from('label_orders')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('[searchOrdersAction] erro ao buscar pedidos:', error)
+    return { success: false, error: error.message, results: [] }
+  }
+
+  const filtered = (results || []).filter((order) => {
+    const matching =
+      order.product_name.toLowerCase().includes(searchTerm) ||
+      order.id.toLowerCase().includes(searchTerm) ||
+      (order.product_details?.toLowerCase().includes(searchTerm) ?? false) ||
+      (order.employee_name?.toLowerCase().includes(searchTerm) ?? false)
+    return matching
+  })
+
+  return { success: true, error: null, results: filtered }
 }

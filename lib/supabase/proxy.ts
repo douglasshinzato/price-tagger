@@ -1,6 +1,7 @@
 // lib/supabase/proxy.ts
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isAdminRole, normalizeRole } from '@/lib/auth-role'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -41,20 +42,20 @@ export async function updateSession(request: NextRequest) {
       .single()
 
     // 2. Proteção da rota /admin
-    if (url.pathname.startsWith('/admin') && employee?.role !== 'admin') {
+    if (url.pathname.startsWith('/admin') && !isAdminRole(employee?.role)) {
       url.pathname = '/employee'
       return NextResponse.redirect(url)
     }
 
     // 3. Proteção da rota /employee
-    if (url.pathname.startsWith('/employee') && employee?.role !== 'employee') {
+    if (url.pathname.startsWith('/employee') && normalizeRole(employee?.role) !== 'employee') {
       url.pathname = '/admin'
       return NextResponse.redirect(url)
     }
 
     // 4. Redireciona se tentar aceder ao login estando já logado
     if (url.pathname === '/') {
-      url.pathname = employee?.role === 'admin' ? '/admin' : '/employee'
+      url.pathname = isAdminRole(employee?.role) ? '/admin' : '/employee'
       return NextResponse.redirect(url)
     }
   }
