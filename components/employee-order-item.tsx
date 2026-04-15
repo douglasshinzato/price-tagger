@@ -26,8 +26,8 @@ export function EmployeeOrderItem({ order }: { order: LabelOrder }) {
 
   return (
     <>
-      <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
-        <div className="space-y-1.5 flex-1 min-w-0 pr-4">
+      <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-1.5 pr-0 sm:pr-4">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-semibold leading-none wrap-break-word">{order.product_name}</p>
             <Badge
@@ -40,7 +40,7 @@ export function EmployeeOrderItem({ order }: { order: LabelOrder }) {
           {order.product_details && (
             <p className="text-xs text-muted-foreground italic">{order.product_details}</p>
           )}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
             <span className="font-medium text-foreground">{order.label_quantity} un.</span>
             {order.created_at && (
               <>
@@ -60,7 +60,7 @@ export function EmployeeOrderItem({ order }: { order: LabelOrder }) {
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2 shrink-0">
+        <div className="w-full text-left flex flex-col items-start gap-2 shrink-0 sm:w-auto sm:text-right sm:items-end">
           <p className="font-bold text-primary whitespace-nowrap">
             R${" "}
             {Number(order.current_price).toLocaleString("pt-BR", {
@@ -78,7 +78,7 @@ export function EmployeeOrderItem({ order }: { order: LabelOrder }) {
           )}
 
           {order.status === "pending" && (
-            <div className="flex gap-1.5">
+            <div className="flex flex-wrap gap-1.5 sm:flex-nowrap">
               <Button
                 variant="outline"
                 size="sm"

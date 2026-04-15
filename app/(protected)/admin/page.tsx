@@ -86,7 +86,7 @@ export default async function AdminDashboard({
 
   return (
     <div className="flex min-h-svh items-center justify-center p-4 bg-muted/20">
-      <Card className="w-full min-w-90 max-w-2xl shadow-lg border-none md:border md:shadow-sm">
+      <Card className="w-full max-w-2xl shadow-lg border-none md:border md:shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-2xl font-bold">Painel Admin</CardTitle>
           <CardDescription>Gerencie os pedidos de etiquetas</CardDescription>
@@ -117,7 +117,7 @@ export default async function AdminDashboard({
               </TabsTrigger>
             </TabsList>
 
-            <ScrollArea className="h-125 pr-4">
+            <ScrollArea className="h-125 pr-2 sm:pr-4">
               <TabsContent value="novo" className="m-0">
                 <OrderForm />
               </TabsContent>

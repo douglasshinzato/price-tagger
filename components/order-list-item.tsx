@@ -38,9 +38,9 @@ export function OrderListItem({ order, currentUserId }: OrderListItemProps) {
     <>
       <div
         onClick={() => setIsModalOpen(true)}
-        className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer group"
+        className="flex flex-col gap-3 rounded-lg border bg-card p-4 transition-all cursor-pointer group hover:bg-accent/50 sm:flex-row sm:items-center sm:justify-between"
       >
-        <div className="space-y-1.5 flex-1 min-w-0 pr-4">
+        <div className="min-w-0 flex-1 space-y-1.5 pr-0 sm:pr-4">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-semibold leading-none wrap-break-word">{order.product_name}</p>
             <Badge
@@ -53,14 +53,14 @@ export function OrderListItem({ order, currentUserId }: OrderListItemProps) {
           {order.product_details && (
             <p className="text-xs text-muted-foreground italic">{order.product_details}</p>
           )}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
             <span className="font-medium text-foreground">{order.label_quantity} un.</span>
             <span>•</span>
             <span>{order.employee_name}</span>
           </div>
         </div>
 
-        <div className="text-right flex flex-col items-end gap-1.5 shrink-0">
+        <div className="w-full text-left flex flex-col items-start gap-1.5 shrink-0 sm:w-auto sm:text-right sm:items-end">
           <p className="font-bold text-primary whitespace-nowrap">
             R$ {Number(order.current_price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
@@ -75,7 +75,7 @@ export function OrderListItem({ order, currentUserId }: OrderListItemProps) {
           )}
 
           {canEdit && (
-            <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-wrap gap-1.5 sm:flex-nowrap" onClick={(e) => e.stopPropagation()}>
               <Button
                 variant="outline"
                 size="sm"
