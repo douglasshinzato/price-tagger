@@ -27,13 +27,12 @@ export function OrderModal({ order, isOpen, onClose }: OrderModalProps) {
   const [observations, setObservations] = useState(order?.observations || "")
 
   const calculateNewPrice = (price: number) => {
-    const step1 = price * 0.965
-    const step2 = step1 * 1.2
-    const decimal = step2 - Math.floor(step2)
-    const finalPrice = decimal >= 0.5 ? Math.ceil(step2) : Math.floor(step2)
+    const step1 = price * 1.2
+    const decimal = step1 - Math.floor(step1)
+    const finalPrice = decimal >= 0.5 ? Math.ceil(step1) : Math.floor(step1)
     const discountValue = finalPrice * 0.16
     const cashValue = finalPrice * 0.84
-    return { step1, step2, finalPrice, discountValue, cashValue }
+    return { step1, finalPrice, discountValue, cashValue }
   }
 
   const calculation = order?.needs_price_update ? calculateNewPrice(order.current_price) : null
