@@ -3,7 +3,7 @@
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { orderSchema, OrderFormValues } from "@/lib/schemas/order"
-import { createOrderAction, updateOrderAction } from "@/app/actions/orders"
+import { createOrderAction, updateOrderAction, reorderAction } from "@/app/actions/orders"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,23 +16,29 @@ import { LabelOrder } from "@/lib/types"
 
 interface OrderFormProps {
   order?: LabelOrder
+  reorderSource?: LabelOrder
+  reorderOrderId?: string
   onSuccess?: () => void
 }
 
-export function OrderForm({ order, onSuccess }: OrderFormProps = {}) {
+export function OrderForm({ order, reorderSource, reorderOrderId, onSuccess }: OrderFormProps = {}) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const isEditing = !!order
+  const isReorder = !!reorderOrderId
+
+  // Fonte de dados para pré-preenchimento: pedido sendo editado, pedido sendo refeito, ou vazio
+  const source = order ?? reorderSource
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     mode: "onChange",
     defaultValues: {
-      product_name: order?.product_name ?? "",
-      product_details: order?.product_details ?? "",
-      current_price: order?.current_price ?? undefined,
-      needs_price_update: order?.needs_price_update ?? (undefined as unknown as boolean),
-      label_quantity: order?.label_quantity ?? 1,
+      product_name: source?.product_name ?? "",
+      product_details: source?.product_details ?? "",
+      current_price: source?.current_price ?? undefined,
+      needs_price_update: source?.needs_price_update ?? (undefined as unknown as boolean),
+      label_quantity: source?.label_quantity ?? 1,
     }
   })
 
@@ -49,6 +55,15 @@ export function OrderForm({ order, onSuccess }: OrderFormProps = {}) {
           router.refresh()
         } else {
           toast.error("Erro ao atualizar pedido: " + res.error)
+        }
+      } else if (reorderOrderId) {
+        const res = await reorderAction(reorderOrderId, data)
+        if (res.success) {
+          toast.success("Pedido refeito com sucesso!")
+          onSuccess?.()
+          router.refresh()
+        } else {
+          toast.error("Erro ao refazer pedido: " + res.error)
         }
       } else {
         const res = await createOrderAction(data)
@@ -170,7 +185,7 @@ export function OrderForm({ order, onSuccess }: OrderFormProps = {}) {
       <Button type="submit" className="w-full h-12 text-lg" disabled={isPending}>
         {isPending
           ? <Loader2 className="animate-spin mr-2 h-4 w-4" />
-          : isEditing ? "Salvar Alterações" : "Enviar Pedido"
+          : isEditing ? "Salvar Alterações" : isReorder ? "Refazer Pedido" : "Enviar Pedido"
         }
       </Button>
 

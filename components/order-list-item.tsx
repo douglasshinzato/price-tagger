@@ -15,7 +15,7 @@ import {
 import { OrderModal } from "./order-modal"
 import { OrderForm } from "./order-form"
 import { LabelOrder } from "@/lib/types"
-import { Pencil, X } from "lucide-react"
+import { Pencil, RotateCcw, X } from "lucide-react"
 import { cancelOrderAction } from "@/app/actions/orders"
 import { toast } from "sonner"
 
@@ -30,9 +30,11 @@ export function OrderListItem({ order, currentUserId }: OrderListItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [isCancelPending, setIsCancelPending] = useState(false)
+  const [isReordering, setIsReordering] = useState(false)
 
   const isOwner = !!currentUserId && order.employee_id === currentUserId
   const canEdit = isOwner && order.status === "pending"
+  const canReorder = order.status === "completed" || order.status === "cancelled"
 
   return (
     <>
@@ -93,6 +95,20 @@ export function OrderListItem({ order, currentUserId }: OrderListItemProps) {
               >
                 <X className="h-3 w-3" />
                 Cancelar
+              </Button>
+            </div>
+          )}
+
+          {canReorder && (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs h-7"
+                onClick={() => setIsReordering(true)}
+              >
+                <RotateCcw className="h-3 w-3" />
+                Refazer
               </Button>
             </div>
           )}
@@ -162,6 +178,28 @@ export function OrderListItem({ order, currentUserId }: OrderListItemProps) {
           </DialogHeader>
           <div className="max-h-[70vh] overflow-y-auto pr-1">
             <OrderForm order={order} onSuccess={() => setIsEditing(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de refazer pedido (com formulário editável) */}
+      <Dialog open={isReordering} onOpenChange={setIsReordering}>
+        <DialogContent
+          className="sm:max-w-lg w-[95vw] rounded-xl border-none"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle>Refazer Pedido</DialogTitle>
+            <DialogDescription>
+              Pedido de <strong>{order.employee_name}</strong> pré-preenchido. Ajuste os dados se necessário e confirme.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[70vh] overflow-y-auto pr-1">
+            <OrderForm
+              reorderSource={order}
+              reorderOrderId={order.id}
+              onSuccess={() => setIsReordering(false)}
+            />
           </div>
         </DialogContent>
       </Dialog>

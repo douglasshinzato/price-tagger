@@ -224,3 +224,57 @@ export async function searchOrdersAction(query: string) {
 
   return { success: true, error: null, results: filtered }
 }
+
+export async function reorderAction(orderId: string, values: OrderInput) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "Não autorizado" }
+
+  // Verificar se o usuário é admin
+  const { data: employee, error: employeeError } = await supabase
+    .from('employees')
+    .select('role, name')
+    .eq('id', user.id)
+    .single()
+
+  if (employeeError) {
+    console.error("[reorderAction] erro ao buscar role:", employeeError)
+  }
+
+  if (!isAdminRole(employee?.role)) {
+    return { success: false, error: "Apenas administradores podem refazer pedidos" }
+  }
+
+  // Buscar o pedido original (apenas para validar o status)
+  const { data: original, error: fetchError } = await supabase
+    .from('label_orders')
+    .select('status')
+    .eq('id', orderId)
+    .single()
+
+  if (fetchError || !original) return { success: false, error: "Pedido não encontrado" }
+  if (original.status !== 'completed' && original.status !== 'cancelled') {
+    return { success: false, error: "Apenas pedidos concluídos ou cancelados podem ser refeitos" }
+  }
+
+  const validatedFields = orderSchema.safeParse(values)
+  if (!validatedFields.success) return { success: false, error: "Dados inválidos" }
+
+  // Inserir novo pedido em nome do admin autenticado
+  const { error: insertError } = await supabase
+    .from('label_orders')
+    .insert({
+      employee_id: user.id,
+      employee_name: employee!.name,
+      ...validatedFields.data,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+    })
+
+  if (insertError) return { success: false, error: insertError.message }
+
+  revalidatePath('/employee')
+  revalidatePath('/admin')
+  return { success: true }
+}
